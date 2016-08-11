@@ -11,11 +11,5 @@ if (!empty($_POST)) {
 	$textArray = explode('*', $text);
 	$userResponse = trim(end($textArray));
 
-	$mainController = new MainController();
-
-	$response = $mainController->displayMainMenu();
-
-	header("Content-type: text/plain");
-
-	echo $response;
+	new MainController($sessionId, $serviceCode, $phoneNumber, $text, $userResponse);
 }
