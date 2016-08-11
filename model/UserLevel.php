@@ -28,4 +28,31 @@ class UserLevel {
 		return $level;
 	}
 
+	public function addUserLevel($sessionId, $phoneNumber, $level) {
+
+		$sql = "INSERT INTO `OdaDishi`.`session_levels` (`session_id`, `phoneNumber`, `level`, `temp_pin`) VALUES ('$session_id', '$phoneNumber', '$level', '');"
+
+		$results = $this->conn->query($sql);
+
+		return $results;
+
+	}
+
+	public function updateUserLevel($sessionId, $phoneNumber, $level) {
+
+		if($this->getUserLevel($phoneNumber) == 0) {
+
+			$this->addUserLevel($sessionId, $phoneNumber, $level);
+
+			return;
+		}
+
+		$level = "UPDATE `session_levels` SET `level`= $level WHERE `session_id`='$sessionId'";
+
+		$results = $this->conn->($level);
+
+		return $results;
+
+	}
+
 }
