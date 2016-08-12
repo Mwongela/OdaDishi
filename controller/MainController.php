@@ -34,6 +34,15 @@ class MainController {
 
 		$level = $this->userLevel->getUserLevel($this->sessionId);
 
+		// if($level !== 0 || $level !== 1) {
+		//
+		// 	if($this->userResponse == "") {
+		//
+		// 		$this->response = str_replace("CON", "CON Invalid input.", $this->response)
+		//
+		// 	}
+		// }
+
 		switch ($level) {
 			case '0':
 				$this->displayMainMenu();
@@ -44,7 +53,21 @@ class MainController {
 				break;
 
 			case '40':
-				print_r("Successful. Pin kwa switch statement");
+
+				$user = $this->user->getUser($phoneNumber);
+				$pin = $user['pin'];
+
+				if(strcmp($pin, $this->userResponse) === 0) {
+
+					$this->displaySellerMainMenu();
+					return;
+
+				} else {
+
+					$this->response = "CON Wrong PIN. Enter PIN";
+
+				}
+				$this->printResults();
 				break;
 
 			case '411':
@@ -166,5 +189,9 @@ class MainController {
 			$this->response = "CON Enter your name";
 			$this->printResults();
 		}
+	}
+
+	public function displaySellerMainMenu() {
+
 	}
 }

@@ -14,11 +14,7 @@ class User {
 
 	public function isUserExisted($phoneNumber) {
 
-		$sql = "SELECT * FROM `users` WHERE `phonenumber` LIKE '%$phoneNumber%'";
-
-		$results = $this->conn->query($sql);
-
-		$user = $results->fetch_assoc();
+		$user = $this->getUser($phoneNumber);
 
 		if($user && $user['pin'] != NULL &&
 			$user['phoneNumber'] != NULL &&
@@ -119,5 +115,16 @@ class User {
 		$results = $this->conn->query($sql);
 
 		return $results;
+	}
+
+	public function getUser($phoneNumber) {
+
+		$sql = "SELECT * FROM `users` WHERE `phonenumber` LIKE '%$phoneNumber%'";
+
+		$results = $this->conn->query($sql);
+
+		$user = $results->fetch_assoc();
+
+		return $user;
 	}
 }
