@@ -191,7 +191,20 @@ class MainController {
 		}
 	}
 
-	public function displaySellerMainMenu() {
+	public function displaySellerMainMenu($err = false) {
 
+		$user = $this->user->getUser($this->phoneNumber);
+
+		$menu = "CON Welcome " . $user['name'] . ". Select Option\n";
+		$menu .= "1. Orders \n";
+		$menu .= "2. Manage Foods \n";
+		$menu .= "3. Account";
+
+		if($err) {
+
+			str_replace("Welcome " . $user['name'], "Invalid input", $menu);
+		}
+
+		$this->response = $menu;
 	}
 }
