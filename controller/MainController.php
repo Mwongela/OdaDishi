@@ -27,29 +27,72 @@ class MainController {
 		$this->userLevel = new UserLevel();
 		$this->user = new User();
 
-		$this->startApp();
+		$this->app();
 	}
 
-	function __destruct() {
-
-		$this->printResults();
-	}
-
-	public function startApp() {
+	public function app() {
 
 		$level = $this->userLevel->getUserLevel($this->sessionId);
 
 		switch ($level) {
 			case '0':
-				$this->response = $this->getMainMenu();
+				$this->displayMainMenu();
 				break;
 
 			case '1':
 				$this->routeLevel1();
 				break;
 
+			case '40':
+				print_r("Successful. Pin kwa switch statement");
+				break;
+
+			case '411':
+				$this->user->saveName($this->userResponse, $this->phoneNumber);
+				$this->response = "CON Enter national ID no.";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 412);
+				$this->printResults();
+				break;
+
+			case '412':
+				$this->user->saveNationalId($this->userResponse, $this->phoneNumber);
+				$this->response = "CON Enter your Location";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 413);
+				$this->printResults();
+				break;
+
+			case '413':
+				$this->user->saveLocation($this->userResponse, $this->phoneNumber);
+				$this->response = "CON Enter your PIN";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 414);
+				$this->printResults();
+				break;
+
+			case '414':
+				$this->user->saveTemporaryPin($this->userResponse, $this->sessionId);
+				$this->response = "CON Confirm your PIN";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 415);
+				$this->printResults();
+				break;
+
+			case '415':
+				if(strcmp($this->userResponse, $this->user->getTemporaryPin($this->sessionId)) === 0) {
+
+					$this->user->savePin($this->userResponse, $this->phoneNumber);
+					$this->user->activateAccount($this->phoneNumber);
+					$this->response = "CON Registration Successful. Enter PIN to Login";
+					$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 40);
+
+				} else {
+
+					$this->response = "CON PIN does not match. Confirm your PIN";
+				}
+
+				$this->printResults();
+				break;
+
 			default:
-				$this->response = $this->getMainMenu();
+				$this->displayMainMenu();
 				break;
 		}
 
@@ -61,7 +104,7 @@ class MainController {
 		echo $this->response;
 	}
 
-	public function getMainMenu() {
+	public function displayMainMenu($err = false) {
 
 		$menu = "";
 		$menu .= "CON Welcome to Oda Dishi. Please select option \n";
@@ -72,7 +115,13 @@ class MainController {
 
 		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 1);
 
-		return $menu;
+		if($err) {
+			$menu = str_replace("Welcome to Oda Dishi", "Invalid choice", $menu);
+		}
+
+		$this->response = $menu;
+
+		$this->printResults();
 	}
 
 	public function routeLevel1() {
@@ -93,7 +142,7 @@ class MainController {
 				break;
 
 			default:
-				$this->response = str_replace("Welcome to Oda Dishi", "Invalid choice", $this->getMainMenu());
+				$this->displayMainMenu(true);
 				break;
 		}
 
@@ -104,10 +153,18 @@ class MainController {
 
 		if($isRegistered) {
 
+			$this->response = "CON welcome back. Enter PIN to Login";
+			$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 40);
+
 		} else {
+			// Begin registration process
 			// Register user
 			// name, national Id, location, type = seller, PIN
-			
+			$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 411);
+			$this->user->savePhoneNumber($this->phoneNumber);
+			$this->user->saveType('S', $this->phoneNumber);
+			$this->response = "CON Enter your name";
+			$this->printResults();
 		}
 	}
 }
