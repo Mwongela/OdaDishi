@@ -49,12 +49,12 @@ class MainController {
 				break;
 
 			case '1':
-				$this->routeLevel1();
+				$this->routeMainHome();
 				break;
 
 			case '40':
 
-				$user = $this->user->getUser($phoneNumber);
+				$user = $this->user->getUser($this->phoneNumber);
 				$pin = $user['pin'];
 
 				if(strcmp($pin, $this->userResponse) === 0) {
@@ -68,6 +68,10 @@ class MainController {
 
 				}
 				$this->printResults();
+				break;
+
+			case '401':
+				$this->routeSellerHome();
 				break;
 
 			case '411':
@@ -147,7 +151,7 @@ class MainController {
 		$this->printResults();
 	}
 
-	public function routeLevel1() {
+	public function routeMainHome() {
 
 		switch ($this->userResponse) {
 			case '1':
@@ -201,10 +205,52 @@ class MainController {
 		$menu .= "3. Account";
 
 		if($err) {
-
-			str_replace("Welcome " . $user['name'], "Invalid input", $menu);
+			$menu = str_replace("Welcome " . $user['name'], "Invalid input", $menu);
 		}
 
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 401);
 		$this->response = $menu;
+		$this->printResults();
+	}
+
+	public function routeSellerHome() {
+
+		switch ($this->userResponse) {
+			case '1':
+
+				break;
+
+			case '2':
+				$this->displaySellerFoodHome();
+				break;
+
+			case '3':
+
+				break;
+
+			default:
+				$this->displaySellerMainMenu(true);
+				break;
+		}
+	}
+
+	public function displaySellerFoodHome($err = false) {
+
+		$menu = "CON Select Option \n";
+		$menu .= "1. View My Foods \n";
+		$menu .= "2. Add New Food \n";
+		$menu .= "3. Update Food \n";
+		$menu .= "4. Update Available Foods \n";
+		$menu .= "5. Remove Food \n";
+
+		if($err) {
+
+			$menu = str_replace("CON", "CON Invalid Option", $menu);
+		}
+
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 401);
+		$this->response = $menu;
+		$this->printResults();
+
 	}
 }
