@@ -134,7 +134,7 @@ class MainController {
 
 					$this->user->savePin($this->userResponse, $this->phoneNumber);
 					$this->user->activateAccount($this->phoneNumber);
-					$this->response = "CON Registration Successful. Enter PIN to Login";
+					$this->response = "END Registration Successful.";
 					$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 40);
 
 				} else {
@@ -287,6 +287,7 @@ class MainController {
 		switch($this->userResponse) {
 
 			case '1':
+				print_r("something");
 				break;
 
 			case '2':
@@ -333,19 +334,19 @@ class MainController {
 
 			case '1':
 				$this->food->saveFoodType("Food", $this->sessionId);
-				$this->food->activateFood();
+				$this->food->activateFood($this->sessionId);
 				$this->displayAddNewFood();
 				break;
 
 			case '2':
 				$this->food->saveFoodType("Drink", $this->sessionId);
-				$this->food->activateFood();
+				$this->food->activateFood($this->sessionId);
 				$this->displayAddNewFood();
 				break;
 
 			case '3':
 				$this->food->saveFoodType("Dessert", $this->sessionId);
-				$this->food->activateFood();
+				$this->food->activateFood($this->sessionId);
 				$this->displayAddNewFood();
 				break;
 
