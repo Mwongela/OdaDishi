@@ -165,7 +165,7 @@ class MainController {
 		$menu .= "1. Order Food \n";
 		$menu .= "2. Order Drink \n";
 		$menu .= "3. Order Dessert\n";
-		$menu .= "4. Seller\'s Portal";
+		$menu .= "4. Seller's Portal";
 
 		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 1);
 
@@ -287,7 +287,7 @@ class MainController {
 		switch($this->userResponse) {
 
 			case '1':
-				print_r("something");
+				$this->displaySellerFoods();
 				break;
 
 			case '2':
@@ -358,9 +358,7 @@ class MainController {
 
 	public function displayAddNewFood($err = false) {
 
-		$menu = "CON Add New Food \n";
-		$menu .= "1. Yes \n";
-		$menu .= "2. No";
+		$menu = "END Successfully added new food";
 
 		if($err) {
 			$menu = str_replace("CON", "CON Invalid Option.", $menu);
@@ -389,5 +387,22 @@ class MainController {
 				$this->displayAddNewFood(true);
 				break;
 		}
+	}
+
+	public function displaySellerFoods() {
+		$foods = $this->food->getFoodsForUser($this->phoneNumber);
+
+		$text = "END My Foods (" . count($foods) . ")\n";
+
+		$count = 0;
+
+		foreach ($foods as $key => $value) {
+
+			$count++;
+			$text .= $count . ". " . $value['name'] . " (Kshs. " . $value['price'] . ")\n";
+		}
+
+		$this->response = $text;
+		$this->printResults();
 	}
 }
