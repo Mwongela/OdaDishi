@@ -2,6 +2,7 @@
 
 require_once "model/UserLevel.php";
 require_once "model/User.php";
+require_once "model/Food.php";
 
 class MainController {
 
@@ -15,6 +16,7 @@ class MainController {
 
 	private $userLevel;
 	private $user;
+	private $food;
 
 	function __construct($sessionId, $serviceCode, $phoneNumber, $text, $userResponse) {
 
@@ -26,6 +28,7 @@ class MainController {
 
 		$this->userLevel = new UserLevel();
 		$this->user = new User();
+		$this->food = new Food();
 
 		$this->app();
 	}
@@ -70,8 +73,32 @@ class MainController {
 				$this->printResults();
 				break;
 
-			case '401':
+			case '420':
 				$this->routeSellerHome();
+				break;
+
+			case '4220':
+				$this->food->saveFoodName($this->userResponse, $this->sessionId);
+				$this->response = "CON Enter price";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4221);
+				$this->printResults();
+				break;
+
+			case '4221':
+				$this->food->saveFoodPrice($this->userResponse, $this->sessionId);
+				$this->displayFoodType();
+				break;
+
+			case '4222':
+				$this->routeSelectFoodType();
+				break;
+
+			case '4223':
+				$this->routeAddNewFood();
+				break;
+
+			case '426':
+				$this->routeManageFood();
 				break;
 
 			case '411':
@@ -191,8 +218,9 @@ class MainController {
 			$this->user->savePhoneNumber($this->phoneNumber);
 			$this->user->saveType('S', $this->phoneNumber);
 			$this->response = "CON Enter your name";
-			$this->printResults();
 		}
+
+		$this->printResults();
 	}
 
 	public function displaySellerMainMenu($err = false) {
@@ -208,7 +236,7 @@ class MainController {
 			$menu = str_replace("Welcome " . $user['name'], "Invalid input", $menu);
 		}
 
-		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 401);
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 420);
 		$this->response = $menu;
 		$this->printResults();
 	}
@@ -245,12 +273,120 @@ class MainController {
 
 		if($err) {
 
-			$menu = str_replace("CON", "CON Invalid Option", $menu);
+			$menu = str_replace("CON", "CON Invalid Option.", $menu);
 		}
 
-		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 401);
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 426);
 		$this->response = $menu;
 		$this->printResults();
 
+	}
+
+	public function routeManageFood() {
+
+		switch($this->userResponse) {
+
+			case '1':
+				break;
+
+			case '2':
+				$this->food->startFoodSavingProcess($this->phoneNumber, $this->sessionId);
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4220);
+				$this->response = "CON Enter food name";
+				$this->printResults();
+				break;
+
+			case '3':
+				break;
+
+			case '4':
+				break;
+
+			case '5':
+				break;
+
+			default:
+				$this->displaySellerFoodHome(true);
+				break;
+		}
+
+	}
+
+	public function displayFoodType($err = false) {
+
+		$menu = "CON Select food type\n";
+		$menu .= "1. Food \n";
+		$menu .= "2. Drink \n";
+		$menu .= "3. Dessert";
+
+		if($err) {
+			$menu = str_replace("CON", "CON Invalid Option.", $menu);
+		}
+		$this->response = $menu;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4222);
+		$this->printResults();
+	}
+
+	public function routeSelectFoodType() {
+
+		switch($this->userResponse) {
+
+			case '1':
+				$this->food->saveFoodType("Food", $this->sessionId);
+				$this->food->activateFood();
+				$this->displayAddNewFood();
+				break;
+
+			case '2':
+				$this->food->saveFoodType("Drink", $this->sessionId);
+				$this->food->activateFood();
+				$this->displayAddNewFood();
+				break;
+
+			case '3':
+				$this->food->saveFoodType("Dessert", $this->sessionId);
+				$this->food->activateFood();
+				$this->displayAddNewFood();
+				break;
+
+			default:
+				$this->displayFoodType(true);
+				break;
+		}
+	}
+
+	public function displayAddNewFood($err = false) {
+
+		$menu = "CON Add New Food \n";
+		$menu .= "1. Yes \n";
+		$menu .= "2. No";
+
+		if($err) {
+			$menu = str_replace("CON", "CON Invalid Option.", $menu);
+		}
+		$this->response = $menu;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4223);
+		$this->printResults();
+	}
+
+	public function routeAddNewFood() {
+
+		switch($this->userResponse) {
+
+			case '1':
+				$this->food->startFoodSavingProcess($this->phoneNumber, $this->sessionId);
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4220);
+				$this->response = "CON Enter food name";
+				$this->printResults();
+				break;
+
+			case '2':
+				$this->displaySellerFoodHome();
+				break;
+
+			default:
+				$this->displayAddNewFood(true);
+				break;
+		}
 	}
 }

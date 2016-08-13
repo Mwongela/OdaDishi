@@ -17,10 +17,10 @@ class User {
 		$user = $this->getUser($phoneNumber);
 
 		if($user && $user['pin'] != NULL &&
-			$user['phoneNumber'] != NULL &&
+			$user['phonenumber'] != NULL &&
 			$user['nationalID'] != NULL &&
 			$user['location'] != NULL &&
-			strcmp($user['status'], "ACTIVE")) {
+			strcmp($user['status'], "ACTIVE") == 0) {
 
 			return true;
 		}
