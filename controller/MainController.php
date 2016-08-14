@@ -117,6 +117,10 @@ class MainController {
 				$this->routeSelectFoodType();
 				break;
 
+			case '4240':
+				$this->routeUpdateAvailableFoods();
+				break;
+
 			case '426':
 				$this->routeManageFood();
 				break;
@@ -322,6 +326,7 @@ class MainController {
 				break;
 
 			case '4':
+				$this->displayUpdateAvailableFoods();
 				break;
 
 			case '5':
@@ -419,7 +424,7 @@ class MainController {
 	}
 
 	public function displaySellerFoods() {
-		$foods = $this->food->getFoodsForUser($this->phoneNumber);
+		$foods = $this->food->getAllFoodsForUser($this->phoneNumber);
 
 		$text = "END My Foods (" . count($foods) . ")\n";
 
@@ -437,7 +442,7 @@ class MainController {
 
 	public function displayUpdateSellerFood($err = false) {
 
-		$foods = $this->food->getFoodsForUser($this->phoneNumber);
+		$foods = $this->food->getAllFoodsForUser($this->phoneNumber);
 
 		$text = "CON Select food to edit\n";
 
@@ -473,8 +478,48 @@ class MainController {
 
 	}
 
-	public function displayAvailableFoods() {
+	public function displayUpdateAvailableFoods($err = false) {
 
-		
+		$text = "CON Select Option \n0. Set All foods available\n";
+
+		$foods = $this->food->getAllFoodsForUser($this->phoneNumber);
+
+		foreach ($foods as $key => $value) {
+
+			$text .= $value['id'] .". " . $value['name'] . " (" . (strcmp($value["status"], "ACTIVE")== 0 ? "A" : "F") . ")\n";
+		}
+
+		if($err) {
+
+			$text = str_replace("CON", "CON Invalid Option. ", $text);
+		}
+
+		$this->response = $text;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4240);
+		$this->printResults();
+	}
+
+	public function routeUpdateAvailableFoods() {
+
+		if(strcmp($this->userResponse, "0") == 0) {
+
+			$this->food->setAllFoodsAvailable($this->phoneNumber);
+			$this->response = "END Successfully updated list of available foods";
+			$this->printResults();
+		}
+
+		$food = $this->food->getFood($this->userResponse);
+
+		if($food) {
+
+			$this->food->toggleFoodStatus($food['id']);
+			$this->response = "END Successfully updated food status";
+			$this->printResults();
+
+		} else {
+
+			$this->displayUpdateAvailableFoods(true);
+		}
+
 	}
 }

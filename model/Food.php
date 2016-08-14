@@ -56,11 +56,36 @@ class Food {
 		return $foods;
 	}
 
+	public function getAllFoodsForUser($phoneNumber) {
+
+		$foods = array();
+
+		$sql = "SELECT * FROM `food` WHERE `phoneNumber`='$phoneNumber' AND (`status`='ACTIVE' OR `status`='FINISHED')";
+
+		$results = $this->conn->query($sql);
+
+		while ($row = mysqli_fetch_assoc($results)) {
+
+			$food = array(
+				"id" => $row["id"],
+				"name" => $row["name"],
+				"price" => $row["price"],
+				"status" => $row["status"]
+				);
+
+			array_push($foods, $food);
+		}
+
+		return $foods;
+	}
+
 	public function getFood($foodId) {
 
 		$sql = "SELECT * FROM `food` WHERE `id`=$foodId AND `status`='ACTIVE'";
 
 		$results = $this->conn->query($sql);
+
+		print_r($results);
 
 		if($results->num_rows > 0) {
 
@@ -138,6 +163,15 @@ class Food {
 		return $results;
 	}
 
+	public function saveFoodStatus($status, $foodId) {
+
+		$sql = "UPDATE `food` SET `status`='$status' WHERE `id` = '$foodId'";
+
+		$results = $this->conn->query($sql);
+
+		return $results;
+	}
+
 	public function activateFood($sessionId) {
 
 		$foodId = $this->getFoodId($sessionId);
@@ -149,4 +183,31 @@ class Food {
 		return $results;
 	}
 
+	public function setAllFoodsAvailable($phoneNumber) {
+
+		$sql = "UPDATE `food` SET `status`='ACTIVE' WHERE `phoneNumber` = '$phoneNumber'";
+
+		$results = $this->conn->query($sql);
+
+		return $results;
+	}
+
+	public function toggleFoodStatus($foodId) {
+
+		$food = $this->getFood($foodId);
+
+		$status = $food['status'];
+
+		if(strcmp($status, 'ACTIVE') == 0) {
+
+			$this->saveFoodStatus('FINISHED', $foodId);
+
+		} else if(strcmp($status, 'FINISHED') == 0) {
+
+			$this->saveFoodStatus('ACTIVE', $foodId);
+
+		} else {
+
+		}
+	}
 }
