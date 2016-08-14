@@ -16,7 +16,7 @@ class Food {
 
 		$foods = array();
 
-		$sql = "SELECT * FROM `food` WHERE `type`=$type";
+		$sql = "SELECT * FROM `food` WHERE `type`='$type' AND `status`='ACTIVE'";
 
 		$results = $this->conn->query($sql);
 
@@ -38,7 +38,7 @@ class Food {
 
 		$foods = array();
 
-		$sql = "SELECT * FROM `food` WHERE `phoneNumber`='$phoneNumber'";
+		$sql = "SELECT * FROM `food` WHERE `phoneNumber`='$phoneNumber' AND `status`='ACTIVE'";
 
 		$results = $this->conn->query($sql);
 
@@ -56,6 +56,22 @@ class Food {
 		return $foods;
 	}
 
+	public function getFood($foodId) {
+
+		$sql = "SELECT * FROM `food` WHERE `id`=$foodId AND `status`='ACTIVE'";
+
+		$results = $this->conn->query($sql);
+
+		if($results->num_rows > 0) {
+
+			$food = $results->fetch_assoc();
+
+			return $food;
+		}
+
+		return false;
+	}
+
 	public function startFoodSavingProcess($phoneNumber, $sessionId) {
 
 		$foodSql = "INSERT INTO `food`(`phonenumber`) VALUES('$phoneNumber')";
@@ -67,6 +83,15 @@ class Food {
 		$sql = "UPDATE `session_levels` SET `foodId`= $id WHERE `session_id`='$sessionId'";
 
 		return $this->conn->query($sql);
+	}
+
+	public function startFoodUpdatingProcess($id, $sessionId) {
+
+		$sql = "UPDATE `session_levels` SET `foodId`= $id WHERE `session_id`='$sessionId'";
+
+		$results = $this->conn->query($sql);
+
+		return $results;
 	}
 
 	public function getFoodId($sessionId) {

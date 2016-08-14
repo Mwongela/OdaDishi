@@ -97,6 +97,26 @@ class MainController {
 				$this->routeAddNewFood();
 				break;
 
+			case '4230':
+				$this->routeUpdateFood();
+				break;
+
+			case '4231':
+				$this->food->saveFoodName($this->userResponse, $this->sessionId);
+				$this->response = "CON Enter new price";
+				$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4232);
+				$this->printResults();
+				break;
+
+			case '4232':
+				$this->food->saveFoodPrice($this->userResponse, $this->sessionId);
+				$this->displayFoodType(false, true);
+				break;
+
+			case '4233':
+				$this->routeSelectFoodType();
+				break;
+
 			case '426':
 				$this->routeManageFood();
 				break;
@@ -298,6 +318,7 @@ class MainController {
 				break;
 
 			case '3':
+				$this->displayUpdateSellerFood();
 				break;
 
 			case '4':
@@ -313,7 +334,7 @@ class MainController {
 
 	}
 
-	public function displayFoodType($err = false) {
+	public function displayFoodType($err = false, $updating = false) {
 
 		$menu = "CON Select food type\n";
 		$menu .= "1. Food \n";
@@ -323,8 +344,12 @@ class MainController {
 		if($err) {
 			$menu = str_replace("CON", "CON Invalid Option.", $menu);
 		}
+
+		if($updating) {
+			$menu = str_replace("Select", "Update", $menu);
+		}
 		$this->response = $menu;
-		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4222);
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, $updating ? 4233 : 4222);
 		$this->printResults();
 	}
 
@@ -359,6 +384,10 @@ class MainController {
 	public function displayAddNewFood($err = false) {
 
 		$menu = "END Successfully added new food";
+
+		if($this->userLevel->getUserLevel($this->sessionId) === '4233') {
+			$menu = "END Successfully updated food";
+		}
 
 		if($err) {
 			$menu = str_replace("CON", "CON Invalid Option.", $menu);
@@ -404,5 +433,48 @@ class MainController {
 
 		$this->response = $text;
 		$this->printResults();
+	}
+
+	public function displayUpdateSellerFood($err = false) {
+
+		$foods = $this->food->getFoodsForUser($this->phoneNumber);
+
+		$text = "CON Select food to edit\n";
+
+		foreach ($foods as $key => $value) {
+			$text .= $value['id']. ". " . $value['name'] ."(Kshs. " . $value['price'] . ")\n";
+		}
+
+		if($err) {
+
+			$text = str_replace("CON", "CON Invalid Option.", $text);
+		}
+
+		$this->response = $text;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4230);
+		$this->printResults();
+	}
+
+	public function routeUpdateFood() {
+
+		$value = $this->food->getFood($this->userResponse);
+
+		if($value) {
+
+			$this->food->startFoodUpdatingProcess($this->userResponse, $this->sessionId);
+			$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4231);
+			$this->response = "CON Enter New Food Name";
+			$this->printResults();
+
+		} else {
+
+			$this->displayUpdateSellerFood(true);
+		}
+
+	}
+
+	public function displayAvailableFoods() {
+
+		
 	}
 }
