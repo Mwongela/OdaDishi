@@ -121,6 +121,10 @@ class MainController {
 				$this->routeUpdateAvailableFoods();
 				break;
 
+			case '4250':
+				$this->routeDeleteFood();
+				break;
+
 			case '426':
 				$this->routeManageFood();
 				break;
@@ -330,6 +334,7 @@ class MainController {
 				break;
 
 			case '5':
+				$this->displayDeleteFood();
 				break;
 
 			default:
@@ -506,6 +511,7 @@ class MainController {
 			$this->food->setAllFoodsAvailable($this->phoneNumber);
 			$this->response = "END Successfully updated list of available foods";
 			$this->printResults();
+			return;
 		}
 
 		$food = $this->food->getFood($this->userResponse);
@@ -521,5 +527,42 @@ class MainController {
 			$this->displayUpdateAvailableFoods(true);
 		}
 
+	}
+
+	public function displayDeleteFood($err = false) {
+
+		$foods = $this->food->getAllFoodsForUser($this->phoneNumber);
+
+		$text = "CON Select food to delete\n";
+
+		foreach ($foods as $key => $value) {
+			$text .= $value['id']. ". " . $value['name'] ."(Kshs. " . $value['price'] . ")\n";
+		}
+
+		if($err) {
+
+			$text = str_replace("CON", "CON Invalid Option.", $text);
+		}
+
+		$this->response = $text;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, 4250);
+		$this->printResults();
+
+	}
+
+	public function routeDeleteFood() {
+
+		$food = $this->food->getFood($this->userResponse);
+
+		if($food) {
+
+			$this->food->deleteFood($this->userResponse);
+			$this->response = "END Deleted food successfully";
+			$this->printResults();
+
+		} else {
+
+			$this->displayDeleteFood(true);
+		}
 	}
 }

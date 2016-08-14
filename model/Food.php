@@ -81,11 +81,14 @@ class Food {
 
 	public function getFood($foodId) {
 
+		if($foodId == "") {
+
+			return false;
+		}
+
 		$sql = "SELECT * FROM `food` WHERE `id`=$foodId AND `status`='ACTIVE'";
 
 		$results = $this->conn->query($sql);
-
-		print_r($results);
 
 		if($results->num_rows > 0) {
 
@@ -209,5 +212,19 @@ class Food {
 		} else {
 
 		}
+	}
+
+	public function deleteFood($foodId) {
+
+		if($foodId == "") {
+
+			return false;
+		}
+
+		$sql= "DELETE FROM `food` WHERE `id`=$foodId";
+
+		$results = $this->conn->query($sql);
+
+		return $results;
 	}
 }
