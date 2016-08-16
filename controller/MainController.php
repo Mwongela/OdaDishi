@@ -3,6 +3,8 @@
 require_once "model/UserLevel.php";
 require_once "model/User.php";
 require_once "model/Food.php";
+require_once "model/Order.php";
+require_once "model/OrderItem.php";
 
 class MainController {
 
@@ -17,6 +19,8 @@ class MainController {
 	private $userLevel;
 	private $user;
 	private $food;
+	private $order;
+	private $orderItem;
 
 	function __construct($sessionId, $serviceCode, $phoneNumber, $text, $userResponse) {
 
@@ -29,6 +33,8 @@ class MainController {
 		$this->userLevel = new UserLevel();
 		$this->user = new User();
 		$this->food = new Food();
+		$this->order = new Order();
+		$this->orderItem = new OrderItem();
 
 		$this->app();
 	}
@@ -53,6 +59,28 @@ class MainController {
 
 			case '1':
 				$this->routeMainHome();
+				break;
+
+			case '11':
+
+				$this->saveUserLocation($level);
+
+				break;
+
+			case '12':
+
+				break;
+
+			case '21':
+
+				$this->saveUserLocation($level);
+
+				break;
+
+			case '31':
+
+				$this->saveUserLocation($level);
+
 				break;
 
 			case '40':
@@ -210,13 +238,21 @@ class MainController {
 
 		switch ($this->userResponse) {
 			case '1':
-				# code...
+
+				$this->showUserLocation(false, 11);
+
 				break;
 
 			case '2':
+
+				$this->showUserLocation(false, 21);
+
 				break;
 
 			case '3':
+
+				$this->showUserLocation(false, 31);
+
 				break;
 
 			case '4':
@@ -227,6 +263,90 @@ class MainController {
 				$this->displayMainMenu(true);
 				break;
 		}
+
+	}
+
+	public function showUserLocation($err = false, $userLevel = 0) {
+
+		if($this->order->hasUserOrderedBefore($this->phoneNumber)) {
+
+			if($userLevel == '11') {
+
+				$this->showFoods();
+
+			} else if($userLevel == '21') {
+
+				$this->showDrinks();
+
+			} else if($userLevel == '31') {
+
+				$this->showDessert();
+
+			} else {}
+
+			return;
+		}
+
+		$text = "CON Select Location \n";
+
+		$locations = $this->order->getOrderLocations();
+
+		foreach ($locations as $key => $value) {
+
+			$text .= $value['id'] . ". " . $value['location'] . "\n";
+		}
+
+		if($err) {
+
+			$text = str_replace("CON", "CON Invalid input. ", $text);
+		}
+
+		$this->response = $text;
+		$this->userLevel->updateUserLevel($this->sessionId, $this->phoneNumber, $userLevel);
+		$this->printResults();
+	}
+
+	public function saveUserLocation($userLevel = 0) {
+
+		if($this->order->getLocation($this->userResponse)) {
+
+			$this->order->addBuyerLocation($this->phoneNumber, $this->userResponse);
+
+			if($userLevel == '11') {
+
+				$this->showFoods();
+
+			} else if($userLevel == '21') {
+
+				$this->showDrinks();
+
+			} else if($userLevel == '31') {
+
+				$this->showDessert();
+
+			} else {}
+
+		} else {
+
+			$this->showUserLocation(true, $userLevel);
+		}
+
+	}
+
+	public function showFoods() {
+
+		// Get user location
+		// query user foods in location
+		// show foods to user
+	}
+
+	public function showDrinks() {
+
+
+	}
+
+	public function showDessert() {
+
 
 	}
 

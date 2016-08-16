@@ -67,11 +67,50 @@ class User {
 
 	public function saveLocation($location, $phoneNumber) {
 
-		$sql = "UPDATE `users` SET `location`='$location' WHERE `phonenumber` = '$phoneNumber'";
+		$locationId = 0;
+
+		$value = $this->isLocationExisted($location)
+
+		if(!$value) {
+
+			$locSql = "INSERT INTO `OdaDishi`.`location` (`id`, `location`) VALUES (NULL, '$location')";
+
+			$locResults = $this->conn->query($locSql);
+
+			$locationId = $this->conn->insert_id;
+
+		} else {
+
+			$locationId = $value;
+		}
+
+		$sql = "UPDATE `users` SET `location`='$locationId' WHERE `phonenumber` = '$phoneNumber'";
 
 		$results = $this->conn->query($sql);
 
 		return $results;
+	}
+
+	public function insertLocation($location) {
+
+
+
+	}
+
+	public function isLocationExisted($location) {
+
+		$sql = "SELECT * FROM `location` WHERE `location`='$location'";
+
+		$results = $this->conn->query($sql);
+
+		$location = $results->fetch_assoc();
+
+		if($location && $location['id'] != NULL && $location['location'] != NULL) {
+
+			return $location['id'];
+		}
+
+		return false;
 	}
 
 	public function saveTemporaryPin($pin, $sessionId) {

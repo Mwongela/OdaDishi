@@ -12,4 +12,12 @@ class OrderItem {
 
 	}
 
+	public function addOrderItem($orderId, $foodId, $quantity = 1) {
+
+		$sql = "INSERT INTO `OdaDishi`.`orderItem` (`id`, `order`, `food`, `quantity`) VALUES (NULL, $orderId, $foodId, '1')";
+
+		$results = $this->conn->query($sql);
+
+		return $results;
+	}
 }
